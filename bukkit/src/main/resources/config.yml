@@ -1,0 +1,109 @@
+# EchoCore Config | Development by Echostudios (Copyright © 2025 Echostudios aka Mattix_off | All rights reserved)
+
+#███████╗ ██████╗██╗  ██╗ ██████╗  ██████╗ ██████╗ ██████╗ ███████╗     ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
+#██╔════╝██╔════╝██║  ██║██╔═══██╗██╔════╝██╔═══██╗██╔══██╗██╔════╝    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
+#█████╗  ██║     ███████║██║   ██║██║     ██║   ██║██████╔╝█████╗      ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+#██╔══╝  ██║     ██╔══██║██║   ██║██║     ██║   ██║██╔══██╗██╔══╝      ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+#███████╗╚██████╗██║  ██║╚██████╔╝╚██████╗╚██████╔╝██║  ██║███████╗    ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+#╚══════╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝ 
+
+# DO NOT EDIT THIS SECTION !!!!                                                                                                                  
+Plugin:
+    name: EchoCore
+    version: 1.0.0-beta3
+    authors:
+        - Echostudios
+    description: A powerful core plugin for Minecraft servers.
+
+# Message Prefix Configuration
+# The prefix is now configured in messages.yml for each individual message
+
+# Webhook Configuration
+webhook:
+    enabled: false
+    moderation-url: ""
+    join-leave-url: ""
+
+# Help System Configuration
+help:
+    main:
+        - "&b&lWelcome to EchoCore Help System!"
+        - ""
+        - "&7Available categories:"
+        - "&b• &fGamemode &7- &e/gmc, /gms, /gma, /gmsp"
+        - "&b• &fUtility &7- &e/tp, /fly, /vanish"
+        - "&b• &fModeration &7- &e/ban, /kick, /warn, /mute"
+        - "&b• &fGeneral &7- &e/help, /reload"
+        - ""
+        - "&7Use &b/help <category> &7for detailed information"
+    
+    categories:
+        gamemode:
+            - "&b&lGamemode Commands"
+            - ""
+            - "&e/gmc [player] &7- Set gamemode to creative"
+            - "&e/gms [player] &7- Set gamemode to survival"
+            - "&e/gma [player] &7- Set gamemode to adventure"
+            - "&e/gmsp [player] &7- Set gamemode to spectator"
+            - ""
+            - "&7Permissions: &cechocore.gamemode.*"
+        
+        utility:
+            - "&b&lUtility Commands"
+            - ""
+            - "&e/tp <player> &7- Teleport to a player"
+            - "&e/fly [player] &7- Toggle flight mode"
+            - "&e/vanish [player] &7- Toggle vanish mode"
+            - ""
+            - "&7Permissions: &cechocore.teleport, echocore.fly, echocore.vanish"
+        
+        moderation:
+            - "&b&lModeration Commands"
+            - ""
+            - "&e/ban <player> [duration] [reason] &7- Ban a player"
+            - "&e/unban <player> &7- Unban a player"
+            - "&e/kick <player> [reason] &7- Kick a player"
+            - "&e/warn <player> <reason> &7- Warn a player"
+            - "&e/unwarn <player> &7- Remove a warning"
+            - "&e/mute <player> [duration] [reason] &7- Mute a player"
+            - "&e/unmute <player> &7- Unmute a player"
+            - ""
+            - "&7Permissions: &cechocore.moderation.*"
+        
+        general:
+            - "&b&lGeneral Commands"
+            - ""
+            - "&e/help [category] &7- Show this help menu"
+            - "&e/reload &7- Reload plugin configuration"
+            - ""
+            - "&7Permissions: &cechocore.help, echocore.reload"
+
+# Color Examples and Placeholders
+# You can use these formats in your messages:
+# 
+# Colors:
+# &a - Legacy colors (a=green, c=red, e=yellow, etc.)
+# #FF0000 - Hex colors
+# <gradient:red:blue:Your Text> - Gradient colors
+# 
+# Placeholders:
+# {player} - Target player name
+# {sender} - Command sender name
+# {reason} - Action reason
+# {gamemode} - Gamemode name
+# {action} - Action type
+# {moderation} - Moderation action
+# {user} - Player name (for webhooks)
+# {target} - Target player (for webhooks)
+# {moderator} - Moderator name (for webhooks)
+# 
+# Newlines:
+# \\n - Creates a line break in messages
+# 
+# Examples:
+# messages:
+#   player-join: "<gradient:#00FF00:#0000FF>+ {player} joined the server</gradient>"
+#   player-quit: "&c- &e{player} &cleft the server"
+#   ban-message: "&cYou have been banned!\\n&cReason: &e{reason}\\n&cAppeal at: discord.gg/server"
+
+

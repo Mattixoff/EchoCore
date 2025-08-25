@@ -1,0 +1,144 @@
+# EchoCore Server Configuration
+# Server-specific settings and preferences
+
+# Database Configuration
+database:
+  type: "sqlite" # "sqlite" or "mysql"
+  host: "localhost"
+  port: 3306
+  database: "echocore"
+  username: "root"
+  password: ""
+  table-prefix: "ec_"
+  
+  # Connection Settings
+  connection:
+    timeout: 30 # seconds
+    max-connections: 10
+    auto-reconnect: true
+    use-ssl: false
+
+# Discord Webhook URLs
+webhook:
+  enabled: false
+  
+  # Moderation Webhook (for ban, kick, warn, mute actions)
+  moderation-url: ""
+  
+  # Join/Leave Webhook (for player join/quit events)
+  join-leave-url: ""
+  
+  # Webhook Settings
+  settings:
+    timeout: 10 # seconds
+    retry-attempts: 3
+    retry-delay: 5 # seconds
+
+# Server Preferences
+server:
+  # General Settings
+  name: "Your Server Name"
+  motd: "Welcome to our server!"
+  
+  # Performance Settings
+  max-players: 100
+  view-distance: 10
+  simulation-distance: 8
+  
+  # Spawn Settings
+  spawn:
+    world: "world"
+    x: 0
+    y: 64
+    z: 0
+    yaw: 0
+    pitch: 0
+
+# Plugin Behavior Settings
+behavior:
+  # Update Checker
+  update-checker:
+    enabled: false
+    check-interval: 24 # hours
+    notify-ops: true
+    auto-download: false
+  
+  # Logging
+  logging:
+    enabled: true
+    level: "INFO" # DEBUG, INFO, WARNING, ERROR
+    save-to-file: false
+    max-file-size: "10MB"
+    max-files: 5
+  
+  # Performance
+  performance:
+    async-database: false
+    cache-size: 100
+    cleanup-interval: 300 # seconds (5 minutes)
+
+# Security Settings
+security:
+  # Anti-Spam
+  anti-spam:
+    enabled: false
+    max-messages-per-second: 3
+    mute-duration: "30s"
+  
+  # Command Cooldowns
+  cooldowns:
+    enabled: false
+    teleport: "3s"
+    gamemode: "1s"
+    fly: "2s"
+    vanish: "1s"
+  
+  # IP Protection
+  ip-protection:
+    enabled: false
+    max-accounts-per-ip: 3
+    whitelist: []
+
+# Custom Settings
+custom:
+  # Welcome Message
+  welcome:
+    enabled: false
+    message: "&aWelcome &e{player} &ato our server!"
+    broadcast: true
+  
+  # Goodbye Message
+  goodbye:
+    enabled: false
+    message: "&cGoodbye &e{player}&c! We hope to see you again!"
+    broadcast: true
+  
+  # Server Rules
+  rules:
+    - "&c&lServer Rules:"
+    - "&7• Be respectful to other players"
+    - "&7• No griefing or stealing"
+    - "&7• No inappropriate language"
+    - "&7• Follow staff instructions"
+
+# Maintenance Mode
+maintenance:
+  enabled: false
+  message: "&cServer is currently under maintenance. Please try again later."
+  whitelist: []
+  kick-existing: false
+
+# Backup Settings
+backup:
+  enabled: false
+  interval: "6h" # 6 hours
+  keep-files: 7
+  compress: true
+  path: "./backups/"
+
+# Notes:
+# - Replace webhook URLs with actual Discord webhook URLs when needed
+# - Adjust database settings according to your server setup
+# - Modify server preferences to match your server configuration
+# - Customize welcome/goodbye messages and rules as needed
+# - Enable/disable features based on your server requirements

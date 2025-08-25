@@ -1,0 +1,296 @@
+# EchoCore Messages Configuration
+# All plugin messages can be customized here
+# Use color codes (&a, &c, &e), hex colors (#FF0000), and gradients (<gradient:red:blue:text>)
+# Use \\n for line breaks
+# Use {prefix} to include the global prefix, remove it if you don't want the prefix for that message
+
+# Global Prefix Configuration
+prefix: "&8[&bEchoCore&8] &r"
+
+# General Messages
+general:
+  player-only: "{prefix}&cThis command can only be used by players!"
+  no-permission: "{prefix}&cYou don't have permission to use this command!"
+  player-not-found: "{prefix}&cPlayer &e{player} &cwas not found!"
+  usage: "{prefix}&cUsage: {usage}"
+
+# Reload Messages
+reload:
+  success: "{prefix}&aPlugin configuration reloaded successfully!"
+  error: "{prefix}&cError occurred while reloading the plugin. Check console for details."
+
+# Gamemode Messages
+gamemode:
+  changed: "{prefix}&aYour gamemode has been changed to &e{gamemode}&a!"
+  changed-others: "{prefix}&aYou changed &e{player}'s &agamemode to &e{gamemode}&a!"
+  changed-by-other: "{prefix}&aYour gamemode was changed to &e{gamemode} &aby &e{sender}&a!"
+
+# Teleport Messages
+teleport:
+  teleported: "{prefix}&aYou have been teleported to &e{player}&a!"
+  multiple-players-found: "{prefix}&eMultiple players found starting with &a{input}&e: &f{players}"
+  suggest-more-characters: "{prefix}&7Try using more characters: &e{suggestion}"
+
+# Fly Messages
+fly:
+  enabled: "{prefix}&aFlight mode has been &aenabled&a!"
+  disabled: "{prefix}&cFlight mode has been &cdisabled&c!"
+  enabled-for-other: "{prefix}&aFlight mode has been &aenabled &afor &e{player}&a!"
+  disabled-for-other: "{prefix}&cFlight mode has been &cdisabled &cfor &e{player}&c!"
+  enabled-by-other: "{prefix}&aFlight mode has been &aenabled &aby &e{sender}&a!"
+  disabled-by-other: "{prefix}&cFlight mode has been &cdisabled &cby &e{sender}&c!"
+
+# Vanish Messages
+vanish:
+  enabled: "{prefix}&aYou are now &avinvisible&a!"
+  disabled: "{prefix}&cYou are now &cvisible&c!"
+  enabled-for-other: "{prefix}&aYou made &e{player} &ainvisible&a!"
+  disabled-for-other: "{prefix}&cYou made &e{player} &cvisible&c!"
+  enabled-by-other: "{prefix}&aYou have been made &ainvisible &aby &e{sender}&a!"
+  disabled-by-other: "{prefix}&cYou have been made &cvisible &cby &e{sender}&c!"
+
+# Moderation Messages
+moderation:
+  default-ban-reason: "No reason specified"
+  default-kick-reason: "No reason specified"
+  default-mute-reason: "No reason specified"
+  
+  # Ban Messages
+  ban-message: "{prefix}&cYou have been banned from this server!\\n&cReason: &e{reason}"
+  player-banned: "{prefix}&c{player} &chas been banned by &e{sender}&c!\\n&cReason: &e{reason}"
+  player-unbanned: "{prefix}&a{player} &ahas been unbanned by &e{sender}&a!"
+  
+  # Kick Messages
+  kick-message: "{prefix}&cYou have been kicked from this server!\\n&cReason: &e{reason}"
+  player-kicked: "{prefix}&c{player} &chas been kicked by &e{sender}&c!\\n&cReason: &e{reason}"
+  
+  # Warn Messages
+  player-warned: "{prefix}&e{player} &chas been warned by &e{sender}&c!\\n&cReason: &e{reason}\\n&cWarnings: &e{warnings}"
+  player-unwarned: "{prefix}&aA warning has been removed from &e{player} &aby &e{sender}&a!\\n&cRemaining warnings: &e{warnings}"
+  player-not-warned: "{prefix}&e{player} &chas no warnings to remove!"
+  
+  # Mute Messages
+  player-muted: "{prefix}&c{player} &chas been muted by &e{sender}&c!\\n&cReason: &e{reason}"
+  player-unmuted: "{prefix}&a{player} &ahas been unmuted by &e{sender}&a!"
+  player-not-muted: "{prefix}&e{player} &cis not currently muted!"
+  chat-muted: "{prefix}&cYou are currently muted and cannot send messages!"
+
+# Join/Leave Messages
+join-leave:
+  player-join: "&a+ &e{player} &ajoined the server"
+  player-quit: "&c- &e{player} &cleft the server"
+
+# Help Messages
+help:
+  category-not-found: "{prefix}&cCategory &e{category} &cnot found!"
+  
+  # Main help menu
+  main:
+    - "&b&lCommands:"
+    - "&7- &b/gmc, /gms, /gma, /gmsp &7- Change gamemode"
+    - "&7- &b/tp <player> &7- Teleport to player"
+    - "&7- &b/fly [player] &7- Toggle flight mode"
+    - "&7- &b/vanish [player] &7- Toggle invisibility"
+    - "&7- &b/ban, /unban, /kick, /warn, /unwarn, /mute, /unmute &7- Moderation"
+    - "&7- &b/staffchat <message> &7- Send staff-only message"
+    - "&7- &b/stats [player] &7- View player statistics"
+    - "&7- &b/inventory [enderchest|inventory] [player] &7- View inventory/enderchest via GUI"
+    - "&7- &b/inv <player> &7- Staff command to view and manage player inventory"
+    - "&7- &b/gui <gui_name> [player] &7- Open custom GUI"
+    - "&7- &b/help [category] &7- Show this help"
+    - "&7- &b/reload &7- Reload plugin configuration"
+  
+  # Command categories
+  categories:
+    gamemode:
+      - "&b&lGamemode Commands:"
+      - "&7- &b/gmc &7- Set gamemode to Creative"
+      - "&7- &b/gms &7- Set gamemode to Survival"
+      - "&7- &b/gma &7- Set gamemode to Adventure"
+      - "&7- &b/gmsp &7- Set gamemode to Spectator"
+      - "&7- &b/gamemode <player> &7- Change other player's gamemode"
+    
+    teleport:
+      - "&b&lTeleport Commands:"
+      - "&7- &b/tp <player> &7- Teleport to player"
+      - "&7- &b/tp <partial-name> &7- Teleport using partial player name"
+    
+    fly:
+      - "&b&lFly Commands:"
+      - "&7- &b/fly &7- Toggle your own flight mode"
+      - "&7- &b/fly <player> &7- Toggle another player's flight mode"
+    
+    vanish:
+      - "&b&lVanish Commands:"
+      - "&7- &b/vanish &7- Toggle your own invisibility"
+      - "&7- &b/vanish <player> &7- Toggle another player's invisibility"
+    
+    moderation:
+      - "&b&lModeration Commands:"
+      - "&7- &b/ban <player> [duration] [reason] &7- Ban a player"
+      - "&7- &b/unban <player> &7- Unban a player"
+      - "&7- &b/kick <player> [reason] &7- Kick a player"
+      - "&7- &b/warn <player> <reason> &7- Warn a player"
+      - "&7- &b/unwarn <player> &7- Remove a warning"
+      - "&7- &b/mute <player> [duration] [reason] &7- Mute a player"
+      - "&7- &b/unmute <player> &7- Unmute a player"
+    
+    staff:
+      - "&b&lStaff Commands:"
+      - "&7- &b/staffchat <message> &7- Send staff-only message"
+      - "&7- &b/stats [player] &7- View detailed player statistics"
+    
+    chat:
+      - "&b&lChat Features:"
+      - "&7- &b@player &7- Tag a player in chat (becomes &b@player&r)"
+      - "&7- &bColors &7- Use & colors if you have permission"
+      - "&7- &bGradients &7- Use <gradient:color1:color2:text> format"
+      - "&7- &bTab Completion &7- Press TAB to see inventory/enderchest items"
+      - "&7- &b[enderchest] &7- Open enderchest GUI in chat"
+      - "&7- &b[inventory] &7- Open inventory GUI in chat"
+    
+    inventory:
+      - "&b&lInventory Management:"
+      - "&7- &b/inventory [enderchest|inventory] [player] &7- View inventory/enderchest via GUI"
+      - "&7- &b/inv <player> &7- Staff command to view and manage player inventory"
+      - "&7- &b[enderchest] &7- Quick access to enderchest GUI in chat"
+      - "&7- &b[inventory] &7- Quick access to inventory GUI in chat"
+
+# Staff Chat Messages
+staffchat:
+  message: "{prefix}&8[&cStaffChat&8] &e{sender}&8: &f{message}"
+
+# Staff Commands
+staff:
+  inventory-cleared: "{prefix}&aYou have cleared &e{player}'s &ainventory!"
+
+# Stats Messages
+stats:
+  error: "{prefix}&cError retrieving player statistics. Check console for details."
+  database-not-connected: "{prefix}&eDatabase not connected. Showing limited statistics."
+
+# Chat System Configuration
+chat:
+  # Chat Format
+  format: "&7<&e{player}&7> &f{message}"
+  
+  # Tag System
+  tags:
+    enabled: true
+    format: "&b@{player}&r"
+    auto-tag-enabled: true
+    auto-tag-format: "&b@{player}&r"
+  
+  # Special Commands Hover Text
+  enderchest:
+    hover-text: "&bEnderchest of {player}&7\\n&7Click to open!"
+  
+  inventory:
+    hover-text: "&bInventory of {player}&7\\n&7Click to open!"
+  
+  # GUI Titles
+  gui:
+    enderchest-title: "&8Enderchest of &e{player}"
+    inventory-title: "&8Inventory of &e{player}"
+    staff-inventory-title: "&c&lStaff View: &8Inventory of &e{player}"
+    no-permission: "&cNo Permission"
+    empty: "&7Empty"
+  
+  # Tab Completion Messages
+  tab-completion:
+    no-permission: "&cNo Permission"
+    empty-inventory: "&7Empty Inventory"
+    empty-enderchest: "&7Empty Enderchest"
+
+# GUI Configuration
+gui:
+  # Enderchest GUI
+  enderchest:
+    clear-button:
+      icon: "BARRIER"
+      text: "&c&lClear Enderchest"
+      lore:
+        - "&7Click to clear &e{player}'s &7enderchest"
+        - "&c&lWARNING: This action cannot be undone!"
+      slot: 26
+    cleared: "{prefix}&aYou have cleared &e{player}'s &aenderchest!"
+  
+  # Inventory GUI
+  inventory:
+    clear-button:
+      icon: "BARRIER"
+      text: "&c&lClear Inventory"
+      lore:
+        - "&7Click to clear &e{player}'s &7inventory"
+        - "&c&lWARNING: This action cannot be undone!"
+      slot: 52
+    cleared: "{prefix}&aYou have cleared &e{player}'s &ainventory!"
+  
+  # Custom GUI configurations
+  custom:
+    # Example: Shop GUI
+    shop:
+      title: "&8&lShop &8- &e{player}"
+      size: 27
+      items:
+        - "10:DIAMOND_SWORD:&b&lDiamond Sword:&7Cost: &a100 coins:&7Click to buy"
+        - "11:DIAMOND_PICKAXE:&b&lDiamond Pickaxe:&7Cost: &a150 coins:&7Click to buy"
+        - "12:DIAMOND_AXE:&b&lDiamond Axe:&7Cost: &a120 coins:&7Click to buy"
+        - "16:BARRIER:&c&lClose:&7Click to close shop"
+    
+    # Example: Vault GUI
+    vault:
+      title: "&6&lVault &8- &e{player}"
+      size: 54
+      items:
+        - "4:CHEST:&6&lVault Contents:&7Your personal storage"
+        - "22:EMERALD:&a&lBalance:&7$1,000,000"
+        - "40:DIAMOND:&b&lPremium Status:&7Active"
+        - "49:BARRIER:&c&lClose:&7Click to close vault"
+
+# Custom Chat Commands
+custom-commands:
+  stats:
+    name: "stats"
+    permission: "echocore.chat.stats"
+    message: "&aStats for {player}: &eLevel 100, &aXP: 50000"
+    color: "&a"
+  
+  help:
+    name: "help"
+    permission: "echocore.chat.help"
+    message: "&6Help menu opened for {player}"
+    color: "&6"
+  
+  shop:
+    name: "shop"
+    permission: "echocore.chat.shop"
+    message: "&eShop opened for {player}"
+    color: "&e"
+
+# Available Placeholders:
+# {prefix} - Global message prefix (configured above)
+# {player} - Target player name
+# {sender} - Command sender name
+# {reason} - Action reason
+# {gamemode} - Gamemode name
+# {action} - Action type
+# {moderation} - Moderation action
+# {user} - Player name (for webhooks)
+# {target} - Target player (for webhooks)
+# {moderator} - Moderator name (for webhooks)
+# {usage} - Command usage
+# {input} - User input
+# {players} - List of players
+# {suggestion} - Suggested input
+# {category} - Help category
+# {warnings} - Warning count
+# {duration} - Duration of action
+# {message} - Chat message content
+
+# Color Examples:
+# &a - Green, &c - Red, &e - Yellow, &b - Aqua, &f - White, &7 - Gray
+# #FF0000 - Red, #00FF00 - Green, #0000FF - Blue
+# <gradient:red:blue:Your Text> - Gradient colors
+# &#048FFF&lᴏ&#1788FF&lᴡ&#2A80FF&lɴ&#3D79FF&lᴇ&#5071FF&lʀ - Unicode gradient colors
+# \\n - Line break

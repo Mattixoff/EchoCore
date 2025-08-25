@@ -1,0 +1,253 @@
+name: EchoCore
+version: 1.0.0-beta3
+main: Echostudios.EchoCore
+api-version: 1.21
+authors: [Echostudios]
+description: A powerful core plugin for Minecraft servers with advanced moderation, utility commands, and Discord integration.
+
+commands:
+  gmc:
+    description: Set gamemode to creative
+    usage: /gmc [player]
+    permission: echocore.gamemode.creative
+  gms:
+    description: Set gamemode to survival
+    usage: /gms [player]
+    permission: echocore.gamemode.survival
+  gma:
+    description: Set gamemode to adventure
+    usage: /gma [player]
+    permission: echocore.gamemode.adventure
+  gmsp:
+    description: Set gamemode to spectator
+    usage: /gmsp [player]
+    permission: echocore.gamemode.spectator
+  tp:
+    description: Teleport to a player
+    usage: /tp <player>
+    permission: echocore.teleport
+  help:
+    description: Show help menu
+    usage: /help [category]
+    permission: echocore.help
+  ban:
+    description: Ban a player
+    usage: /ban <player> [duration] [reason]
+    permission: echocore.moderation.ban
+  unban:
+    description: Unban a player
+    usage: /unban <player>
+    permission: echocore.moderation.unban
+  kick:
+    description: Kick a player
+    usage: /kick <player> [reason]
+    permission: echocore.moderation.kick
+  warn:
+    description: Warn a player
+    usage: /warn <player> <reason>
+    permission: echocore.moderation.warn
+  unwarn:
+    description: Remove a warning
+    usage: /unwarn <player>
+    permission: echocore.moderation.unwarn
+  mute:
+    description: Mute a player
+    usage: /mute <player> [duration] [reason]
+    permission: echocore.moderation.mute
+  unmute:
+    description: Unmute a player
+    usage: /unmute <player>
+    permission: echocore.moderation.unmute
+  fly:
+    description: Toggle flight mode
+    usage: /fly [player]
+    permission: echocore.fly
+  vanish:
+    description: Toggle vanish mode
+    usage: /vanish [player]
+    permission: echocore.vanish
+  reload:
+    description: Reload the plugin configuration
+    usage: /reload
+    permission: echocore.reload
+  staffchat:
+    description: Send a staff-only message
+    usage: /staffchat <message>
+    permission: echocore.staffchat
+  stats:
+    description: View player statistics
+    usage: /stats [player]
+    permission: echocore.stats
+  inventory:
+    description: View inventory and enderchest
+    usage: /inventory [enderchest|inventory] [player]
+    permission: echocore.chat.inventory
+  inv:
+    description: Staff command to view player inventory
+    usage: /inv <player>
+    permission: echocore.staff.inventory
+  gui:
+    description: Open custom GUI
+    usage: /gui <gui_name> [player]
+    permission: echocore.gui
+
+permissions:
+  echocore.*:
+    description: Access to all EchoCore commands
+    default: op
+    children:
+      echocore.gamemode.*: true
+      echocore.gamemode.creative: true
+      echocore.gamemode.survival: true
+      echocore.gamemode.adventure: true
+      echocore.gamemode.spectator: true
+      echocore.gamemode.others: true
+      echocore.moderation.*: true
+      echocore.moderation.ban: true
+      echocore.moderation.unban: true
+      echocore.moderation.kick: true
+      echocore.moderation.warn: true
+      echocore.moderation.unwarn: true
+      echocore.moderation.mute: true
+      echocore.moderation.unmute: true
+      echocore.fly: true
+      echocore.fly.others: true
+      echocore.vanish: true
+      echocore.vanish.others: true
+      echocore.vanish.see: true
+      echocore.teleport: true
+      echocore.help: true
+      echocore.reload: true
+      echocore.staffchat: true
+      echocore.stats: true
+      echocore.stats.staff: true
+      echocore.chat.inventory: true
+      echocore.chat.enderchest: true
+      echocore.chat.colors: true
+      echocore.staff.inventory: true
+      echocore.gui: true
+  
+  echocore.gamemode.*:
+    description: Access to all gamemode commands
+    default: op
+    children:
+      echocore.gamemode.creative: true
+      echocore.gamemode.survival: true
+      echocore.gamemode.adventure: true
+      echocore.gamemode.spectator: true
+      echocore.gamemode.others: true
+  
+  echocore.gamemode.creative:
+    description: Use /gmc command
+    default: op
+  echocore.gamemode.survival:
+    description: Use /gms command
+    default: op
+  echocore.gamemode.adventure:
+    description: Use /gma command
+    default: op
+  echocore.gamemode.spectator:
+    description: Use /gmsp command
+    default: op
+  echocore.gamemode.others:
+    description: Change other players' gamemodes
+    default: op
+  
+  echocore.moderation.*:
+    description: Access to all moderation commands
+    default: op
+    children:
+      echocore.moderation.ban: true
+      echocore.moderation.unban: true
+      echocore.moderation.kick: true
+      echocore.moderation.warn: true
+      echocore.moderation.unwarn: true
+      echocore.moderation.mute: true
+      echocore.moderation.unmute: true
+  
+  echocore.moderation.ban:
+    description: Use /ban command
+    default: op
+  echocore.moderation.unban:
+    description: Use /unban command
+    default: op
+  echocore.moderation.kick:
+    description: Use /kick command
+    default: op
+  echocore.moderation.warn:
+    description: Use /warn command
+    default: op
+  echocore.moderation.unwarn:
+    description: Use /unwarn command
+    default: op
+  echocore.moderation.mute:
+    description: Use /mute command
+    default: op
+  echocore.moderation.unmute:
+    description: Use /unmute command
+    default: op
+  
+  echocore.fly:
+    description: Use /fly command
+    default: op
+    children:
+      echocore.fly.others: true
+  echocore.fly.others:
+    description: Toggle flight for other players
+    default: op
+  
+  echocore.vanish:
+    description: Use /vanish command
+    default: op
+    children:
+      echocore.vanish.others: true
+      echocore.vanish.see: true
+  echocore.vanish.others:
+    description: Toggle vanish for other players
+    default: op
+  echocore.vanish.see:
+    description: See vanished players
+    default: op
+  
+  echocore.teleport:
+    description: Use /tp command
+    default: op
+  
+  echocore.help:
+    description: Use /help command
+    default: true
+  
+  echocore.reload:
+    description: Use /reload command
+    default: op
+  
+  echocore.staffchat:
+    description: Use /staffchat command
+    default: op
+  
+  echocore.stats:
+    description: Use /stats command
+    default: true
+  echocore.stats.staff:
+    description: See staff-only information in /stats command
+    default: op
+  
+  echocore.chat.colors:
+    description: Use colors and gradients in chat
+    default: op
+  
+  echocore.chat.inventory:
+    description: See inventory items in tab completion
+    default: op
+  
+  echocore.chat.enderchest:
+    description: See enderchest items in tab completion
+    default: op
+  
+  echocore.staff.inventory:
+    description: Staff command to view and manage player inventories
+    default: op
+  
+  echocore.gui:
+    description: Use /gui command
+    default: op

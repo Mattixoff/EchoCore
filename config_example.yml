@@ -1,0 +1,82 @@
+# EchoCore Configuration Example
+# This file shows how to configure the new features
+
+chat:
+  tags:
+    enabled: true
+    format: "&b@{player}&r"
+    auto-tag-enabled: true
+    auto-tag-format: "&b@{player}&r"
+  
+  # Custom commands that can be used in chat with [command_name]
+  custom-commands:
+    stats:
+      name: "stats"
+      permission: "echocore.chat.stats"
+      message: "&aStats for {player}: &eLevel 100, &aXP: 50000"
+      color: "&a"
+    
+    help:
+      name: "help"
+      permission: "echocore.chat.help"
+      message: "&6Help menu opened for {player}"
+      color: "&6"
+    
+    shop:
+      name: "shop"
+      permission: "echocore.chat.shop"
+      message: "&eShop opened for {player}"
+      color: "&e"
+
+gui:
+  # Enderchest GUI configuration
+  enderchest:
+    clear-button:
+      icon: "BARRIER"  # Material name (BARRIER, TNT, etc.)
+      text: "&c&lClear Enderchest"
+      lore:
+        - "&7Click to clear &e{player}'s &7enderchest"
+        - "&c&lWARNING: This action cannot be undone!"
+      slot: 26  # Slot position (0-26 for 27-slot inventory)
+  
+  # Inventory GUI configuration
+  inventory:
+    clear-button:
+      icon: "BARRIER"  # Material name
+      text: "&c&lClear Inventory"
+      lore:
+        - "&7Click to clear &e{player}'s &7inventory"
+        - "&c&lWARNING: This action cannot be undone!"
+      slot: 52  # Slot position (0-53 for 54-slot inventory)
+  
+  # Custom GUI configurations
+  custom:
+    # Example custom GUI called "shop"
+    shop:
+      title: "&8&lShop &8- &e{player}"
+      size: 27  # Inventory size (must be multiple of 9)
+      items:
+        # Format: slot:material:display_name:lore_line1:lore_line2:...
+        - "10:DIAMOND_SWORD:&b&lDiamond Sword:&7Cost: &a100 coins:&7Click to buy"
+        - "11:DIAMOND_PICKAXE:&b&lDiamond Pickaxe:&7Cost: &a150 coins:&7Click to buy"
+        - "12:DIAMOND_AXE:&b&lDiamond Axe:&7Cost: &a120 coins:&7Click to buy"
+        - "16:BARRIER:&c&lClose:&7Click to close shop"
+    
+    # Example custom GUI called "vault"
+    vault:
+      title: "&6&lVault &8- &e{player}"
+      size: 54
+      items:
+        - "4:CHEST:&6&lVault Contents:&7Your personal storage"
+        - "22:EMERALD:&a&lBalance:&7$1,000,000"
+        - "40:DIAMOND:&b&lPremium Status:&7Active"
+        - "49:BARRIER:&c&lClose:&7Click to close vault"
+
+# Messages for GUI actions
+messages:
+  gui:
+    no-permission: "&cYou don't have permission to open this GUI!"
+    inventory:
+      cleared: "&aYou have cleared &e{player}'s &ainventory!"
+    enderchest:
+      cleared: "&aYou have cleared &e{player}'s &aenderchest!"
