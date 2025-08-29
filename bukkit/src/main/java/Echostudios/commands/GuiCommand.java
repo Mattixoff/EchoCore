@@ -55,7 +55,7 @@ public class GuiCommand implements CommandExecutor, TabCompleter {
         
         // Check if player has permission to open this GUI
         String permission = plugin.getMessagesConfig().getString("gui.custom." + guiName + ".permission", "");
-        if (!permission.isEmpty() && !player.hasPermission(permission)) {
+        if (!permission.isEmpty() && !plugin.getPermissionChecker().has(player, permission)) {
             String noPermMessage = Utils.getMessageWithPrefix(plugin, "gui.no-permission", "&cYou don't have permission to open this GUI!");
             player.sendMessage(Utils.colorize(noPermMessage));
             return true;

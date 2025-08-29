@@ -55,10 +55,8 @@ public class GuiManager {
         }
         
         if (isEmpty) {
-            // Show empty message
-            String emptyMessage = Utils.getMessageWithPrefix(plugin, "chat.gui.empty", "&7Empty");
-            ItemStack emptyItem = createInfoItem(Material.BARRIER, emptyMessage, "&7This enderchest is empty");
-            gui.setItem(13, emptyItem);
+            // Fill with decorative placeholders to simulate content (configurable)
+            fillPlaceholders(gui, 27, "chat.gui.placeholders.enderchest");
         } else {
             // Fill GUI with enderchest contents
             for (int i = 0; i < enderchestContents.length && i < 27; i++) {
@@ -217,10 +215,8 @@ public class GuiManager {
         }
         
         if (isEmpty) {
-            // Show empty message
-            String emptyMessage = Utils.getMessageWithPrefix(plugin, "chat.gui.empty", "&7Empty");
-            ItemStack emptyItem = createInfoItem(Material.BARRIER, emptyMessage, "&7This inventory is empty");
-            gui.setItem(22, emptyItem);
+            // Fill with decorative placeholders to simulate content (configurable)
+            fillPlaceholders(gui, 54, "chat.gui.placeholders.inventory");
         } else {
             // Fill GUI with inventory contents
             // Main inventory (0-35)
@@ -278,6 +274,19 @@ public class GuiManager {
     }
     
     /**
+     * Opens the target's live inventory for editing by the viewer (staff only)
+     */
+    public void openEditableTargetInventory(Player viewer, Player target) {
+        if (!viewer.hasPermission("echocore.staff.inventory")) {
+            String noPermMessage = Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cNo Permission");
+            viewer.sendMessage(Utils.colorize(noPermMessage));
+            return;
+        }
+        // This opens the actual target inventory; edits will apply directly
+        viewer.openInventory(target.getInventory());
+    }
+    
+    /**
      * Creates an info item for display purposes
      */
     private ItemStack createInfoItem(Material material, String displayName, String... lore) {
@@ -299,6 +308,55 @@ public class GuiManager {
         }
         
         return item;
+    }
+
+    private ItemStack createPlaceholderPane(String name, String materialName) {
+        Material material;
+        try {
+            material = Material.valueOf(materialName.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            material = Material.GRAY_STAINED_GLASS_PANE;
+        }
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(Utils.colorize(name));
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private void fillPlaceholders(Inventory gui, int size, String basePath) {
+        String material = plugin.getMessagesConfig().getString(basePath + ".material", "GRAY_STAINED_GLASS_PANE");
+        String name = plugin.getMessagesConfig().getString(basePath + ".name", size == 27 ? "&8Enderchest" : "&8Inventory");
+        String pattern = plugin.getMessagesConfig().getString(basePath + ".pattern", "fill");
+
+        ItemStack placeholder = createPlaceholderPane(name, material);
+
+        switch (pattern.toLowerCase()) {
+            case "border":
+                for (int i = 0; i < size; i++) {
+                    int row = i / 9;
+                    int col = i % 9;
+                    if (row == 0 || row == (size / 9) - 1 || col == 0 || col == 8) {
+                        gui.setItem(i, placeholder);
+                    }
+                }
+                break;
+            case "checker":
+                for (int i = 0; i < size; i++) {
+                    int row = i / 9;
+                    int col = i % 9;
+                    if ((row + col) % 2 == 0) {
+                        gui.setItem(i, placeholder);
+                    }
+                }
+                break;
+            default: // fill
+                for (int i = 0; i < size; i++) {
+                    gui.setItem(i, placeholder);
+                }
+        }
     }
     
     /**

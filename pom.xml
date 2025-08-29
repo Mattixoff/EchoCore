@@ -15,6 +15,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <!-- Allows overriding the Spigot API version at build time -->
+        <spigotApiVersion>1.21-R0.1-SNAPSHOT</spigotApiVersion>
     </properties>
 
     <repositories>
@@ -28,7 +30,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21-R0.1-SNAPSHOT</version>
+            <version>${spigotApiVersion}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

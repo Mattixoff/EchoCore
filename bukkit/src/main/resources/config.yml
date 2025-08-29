@@ -24,6 +24,35 @@ webhook:
     moderation-url: ""
     join-leave-url: ""
 
+# Tablist / Ranks Configuration
+tablist:
+    format: "{prefix}&f{player}{suffix}"
+    default-prefix: ""
+    default-suffix: ""
+    apply-on-join: true
+
+runs:
+    # Permissions mode: bukkit | echoperms | hybrid
+    permissions:
+        mode: "hybrid"
+
+ranks:
+    enabled: true
+    default: "default"
+    groups:
+        default:
+            prefix: "&7"
+            suffix: ""
+            inherits: []
+        vip:
+            prefix: "&6[VIP] &r"
+            suffix: ""
+            inherits: ["default"]
+        staff:
+            prefix: "&c[STAFF] &r"
+            suffix: ""
+            inherits: ["vip"]
+
 # Help System Configuration
 help:
     main:

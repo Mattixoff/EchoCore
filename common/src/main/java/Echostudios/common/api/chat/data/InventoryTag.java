@@ -120,3 +120,4 @@ public class InventoryTag {
         return items.stream().mapToInt(InventoryItem::getAmount).sum();
     }
 }
+

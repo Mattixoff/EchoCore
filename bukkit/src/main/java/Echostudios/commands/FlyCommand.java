@@ -6,9 +6,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-public class FlyCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class FlyCommand implements CommandExecutor, TabCompleter {
     
     private final EchoCore plugin;
     
@@ -27,7 +32,7 @@ public class FlyCommand implements CommandExecutor {
         
         if (args.length == 0) {
             // Toggle own flight
-            if (!player.hasPermission("echocore.fly")) {
+            if (!plugin.getPermissionChecker().has(player, "echocore.fly")) {
                 player.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
                 return true;
             }
@@ -43,7 +48,7 @@ public class FlyCommand implements CommandExecutor {
             
         } else if (args.length == 1) {
             // Toggle flight for another player
-            if (!player.hasPermission("echocore.fly.others")) {
+            if (!plugin.getPermissionChecker().has(player, "echocore.fly.others")) {
                 player.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
                 return true;
             }
@@ -81,5 +86,24 @@ public class FlyCommand implements CommandExecutor {
         }
         
         return true;
+    }
+    
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+        
+        if (args.length == 1) {
+            // Complete player names for the second argument
+            if (plugin.getPermissionChecker().has(sender, "echocore.fly.others")) {
+                String input = args[0].toLowerCase();
+                List<String> playerNames = Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(name -> name.toLowerCase().startsWith(input))
+                        .collect(Collectors.toList());
+                completions.addAll(playerNames);
+            }
+        }
+        
+        return completions;
     }
 }

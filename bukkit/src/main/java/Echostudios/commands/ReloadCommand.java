@@ -20,7 +20,7 @@ public class ReloadCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("echocore.reload")) {
+        if (!plugin.getPermissionChecker().has(sender, "echocore.reload")) {
             sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }

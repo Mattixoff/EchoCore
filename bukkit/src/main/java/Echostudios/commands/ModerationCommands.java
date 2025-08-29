@@ -51,7 +51,7 @@ public class ModerationCommands implements CommandExecutor {
     }
     
     private boolean handleBan(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("echocore.moderation.ban")) {
+        if (!plugin.getPermissionChecker().has(sender, "echocore.moderation.ban")) {
             sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }
@@ -114,7 +114,7 @@ public class ModerationCommands implements CommandExecutor {
     }
     
     private boolean handleUnban(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("echocore.moderation.unban")) {
+        if (!plugin.getPermissionChecker().has(sender, "echocore.moderation.unban")) {
             sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }
@@ -147,7 +147,7 @@ public class ModerationCommands implements CommandExecutor {
     }
     
     private boolean handleKick(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("echocore.moderation.kick")) {
+        if (!plugin.getPermissionChecker().has(sender, "echocore.moderation.kick")) {
             sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }
@@ -186,7 +186,7 @@ public class ModerationCommands implements CommandExecutor {
     }
     
     private boolean handleWarn(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("echocore.moderation.warn")) {
+        if (!plugin.getPermissionChecker().has(sender, "echocore.moderation.warn")) {
             sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }
@@ -231,7 +231,7 @@ public class ModerationCommands implements CommandExecutor {
     }
     
     private boolean handleUnwarn(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("echocore.moderation.unwarn")) {
+        if (!plugin.getPermissionChecker().has(sender, "echocore.moderation.unwarn")) {
             sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }
@@ -278,7 +278,7 @@ public class ModerationCommands implements CommandExecutor {
     }
     
     private boolean handleMute(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("echocore.moderation.mute")) {
+        if (!plugin.getPermissionChecker().has(sender, "echocore.moderation.mute")) {
             sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }
@@ -339,7 +339,7 @@ public class ModerationCommands implements CommandExecutor {
     }
     
     private boolean handleUnmute(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("echocore.moderation.unmute")) {
+        if (!plugin.getPermissionChecker().has(sender, "echocore.moderation.unmute")) {
             sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }

@@ -6,12 +6,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
-public class StatsCommand implements CommandExecutor {
+public class StatsCommand implements CommandExecutor, TabCompleter {
     
     private final EchoCore plugin;
     
@@ -113,7 +117,7 @@ public class StatsCommand implements CommandExecutor {
         sender.sendMessage("");
         
         // Current status (only visible to staff)
-        if (sender.hasPermission("echocore.stats.staff") || sender.isOp()) {
+        if (plugin.getPermissionChecker().has(sender, "echocore.stats.staff") || sender.isOp()) {
             if (plugin.getModerationCommands() != null) {
                 boolean isMuted = plugin.getModerationCommands().isMuted(target.getUniqueId());
                 boolean isVanished = plugin.getVanishCommand() != null && 
@@ -146,5 +150,22 @@ public class StatsCommand implements CommandExecutor {
         
         sender.sendMessage(Utils.colorize("&c&lNote: &7Database not connected. Limited statistics shown."));
         sender.sendMessage(Utils.colorize("&8&m                                                                                "));
+    }
+    
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+        
+        if (args.length == 1) {
+            // Complete player names for the first argument
+            String input = args[0].toLowerCase();
+            List<String> playerNames = Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(name -> name.toLowerCase().startsWith(input))
+                    .collect(Collectors.toList());
+            completions.addAll(playerNames);
+        }
+        
+        return completions;
     }
 }

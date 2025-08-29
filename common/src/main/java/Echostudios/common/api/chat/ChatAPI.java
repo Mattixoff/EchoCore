@@ -173,3 +173,4 @@ public interface ChatAPI {
      */
     void unregisterListener(ChatListener listener);
 }
+

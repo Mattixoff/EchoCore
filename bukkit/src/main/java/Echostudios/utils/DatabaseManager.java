@@ -105,7 +105,10 @@ public class DatabaseManager {
             "mute_reason TEXT, " +
             "banned BOOLEAN DEFAULT FALSE, " +
             "ban_reason TEXT, " +
-            "ban_expires TIMESTAMP NULL" +
+            "ban_expires TIMESTAMP NULL, " +
+            "rank VARCHAR(64) DEFAULT 'default', " +
+            "prefix VARCHAR(128) NULL, " +
+            "suffix VARCHAR(128) NULL" +
             ")", tablePrefix
         );
         
@@ -140,6 +143,82 @@ public class DatabaseManager {
             stmt.execute(logsTable);
             stmt.execute(statsTable);
         }
+    }
+
+    public CompletableFuture<Void> setPlayerRank(UUID playerUUID, String rank, String prefix, String suffix) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                String sql = String.format(
+                    "UPDATE %splayers SET rank = ?, prefix = ?, suffix = ? WHERE uuid = ?", tablePrefix
+                );
+                try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                    stmt.setString(1, rank);
+                    stmt.setString(2, prefix);
+                    stmt.setString(3, suffix);
+                    stmt.setString(4, playerUUID.toString());
+                    stmt.executeUpdate();
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "Error setting player rank", e);
+            }
+        });
+    }
+
+    public CompletableFuture<String> getPlayerRank(UUID playerUUID) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String sql = String.format("SELECT rank FROM %splayers WHERE uuid = ?", tablePrefix);
+                try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                    stmt.setString(1, playerUUID.toString());
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("rank");
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "Error getting player rank", e);
+            }
+            return "default";
+        });
+    }
+
+    public CompletableFuture<String> getPlayerPrefix(UUID playerUUID) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String sql = String.format("SELECT prefix FROM %splayers WHERE uuid = ?", tablePrefix);
+                try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                    stmt.setString(1, playerUUID.toString());
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("prefix");
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "Error getting player prefix", e);
+            }
+            return null;
+        });
+    }
+
+    public CompletableFuture<String> getPlayerSuffix(UUID playerUUID) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String sql = String.format("SELECT suffix FROM %splayers WHERE uuid = ?", tablePrefix);
+                try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                    stmt.setString(1, playerUUID.toString());
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("suffix");
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "Error getting player suffix", e);
+            }
+            return null;
+        });
     }
     
     public CompletableFuture<Boolean> isPlayerBanned(UUID playerUUID) {

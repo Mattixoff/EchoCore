@@ -4,6 +4,8 @@ import Echostudios.EchoCore;
 import Echostudios.utils.Utils;
 import Echostudios.utils.WebhookManager;
 import Echostudios.utils.GuiManager;
+import Echostudios.utils.ConsentManager;
+import Echostudios.utils.ItemTagProcessor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,6 +19,12 @@ import org.bukkit.event.player.PlayerChatTabCompleteEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
 // Component imports removed for now - will be re-added when component system is implemented
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -61,6 +69,11 @@ public class ChatEvents implements Listener {
         if (plugin.getVanishCommand() != null) {
             plugin.getVanishCommand().handlePlayerJoin(player);
         }
+
+        // Sync permissions into Bukkit layer so other plugins can read EchoPerms
+        try {
+            plugin.getPermissionSyncManager().syncPlayer(player);
+        } catch (Throwable ignored) {}
     }
     
     @EventHandler
@@ -114,20 +127,11 @@ public class ChatEvents implements Listener {
                 !recipient.hasPermission("echocore.vanish.see"));
         }
         
-        // Process chat message for colors, gradients, and tags
-        String message = event.getMessage();
-        String processedMessage = processChatMessage(message, player);
-        event.setMessage(processedMessage);
-        
-        // Set custom chat format
-        final String chatFormat = plugin.getMessagesConfig().getString("chat.format", "&7<&e{player}&7> &f{message}")
-            .replace("{player}", player.getName())
-            .replace("{message}", processedMessage);
-        event.setFormat(Utils.colorize(chatFormat));
-        
-        // For now, use normal chat format instead of components to avoid issues
-        // TODO: Implement proper component system later
-        event.setFormat(Utils.colorize(chatFormat));
+        // Use components to allow clickable tags like [inv] and [ec]
+        String rawMessage = event.getMessage();
+        String processedMessage = processChatMessage(rawMessage, player);
+        event.setCancelled(true);
+        sendComponentChat(player, processedMessage, event.getRecipients());
     }
     
     private String processChatMessage(String message, Player player) {
@@ -145,6 +149,114 @@ public class ChatEvents implements Listener {
         return message;
     }
     
+    private void sendComponentChat(Player sender, String processedMessage, Set<Player> recipients) {
+        // Build chat format with customizable pattern
+        String chatFormat = plugin.getMessagesConfig().getString("chat.format", "&7<&e{player}&7> &f{message}");
+        String formattedMessage = chatFormat
+                .replace("{player}", sender.getName())
+                .replace("{message}", processedMessage);
+        formattedMessage = Utils.applyPlaceholders(sender, formattedMessage);
+        String coloredMessage = Utils.colorize(formattedMessage);
+        
+        // Build only once to avoid duplications. We'll append the header and then the processed message parts.
+        ComponentBuilder builder = new ComponentBuilder();
+        String msg = processedMessage;
+        
+        // Append the header (everything in chat format before {message})
+        String playerPart = plugin.getMessagesConfig().getString("chat.format", "&7<&e{player}&7> &f{message}");
+        String headerOnly = playerPart.substring(0, playerPart.indexOf("{message}"));
+        String headerColored = Utils.colorize(Utils.applyPlaceholders(sender, headerOnly.replace("{player}", sender.getName())));
+        builder.append(TextComponent.fromLegacyText(headerColored));
+
+        // Parse message and insert clickable components for inventory/enderchest
+        int index = 0;
+        while (index < msg.length()) {
+            int invPos = msg.indexOf("[inv]", index);
+            int ecPos = msg.indexOf("[ec]", index);
+
+            int nextPos;
+            boolean isInv;
+            if (invPos == -1 && ecPos == -1) {
+                // No more tags; append rest of message content
+                String tail = msg.substring(index);
+                builder.append(TextComponent.fromLegacyText(Utils.colorize(tail)));
+                break;
+            } else if (invPos != -1 && (ecPos == -1 || invPos < ecPos)) {
+                nextPos = invPos;
+                isInv = true;
+            } else {
+                nextPos = ecPos;
+                isInv = false;
+            }
+
+            // Append text before the tag
+            if (nextPos > index) {
+                String before = msg.substring(index, nextPos);
+                builder.append(TextComponent.fromLegacyText(Utils.colorize(before)));
+            }
+
+            // Append clickable tag
+            if (isInv) {
+                TextComponent tag = new TextComponent("[inv]");
+                tag.setColor(ChatColor.AQUA);
+                tag.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/inventory " + sender.getName()));
+                tag.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(Utils.colorize("&bApri l'inventario di &e" + sender.getName()))));
+                builder.append(tag);
+                index = nextPos + "[inv]".length();
+                // Grant consent for a limited time
+                ConsentManager.grantInventoryConsent(sender.getUniqueId());
+            } else {
+                TextComponent tag = new TextComponent("[ec]");
+                tag.setColor(ChatColor.AQUA);
+                tag.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/inventory enderchest " + sender.getName()));
+                tag.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(Utils.colorize("&bApri l'enderchest di &e" + sender.getName()))));
+                builder.append(tag);
+                index = nextPos + "[ec]".length();
+                // Grant consent for a limited time
+                ConsentManager.grantEnderchestConsent(sender.getUniqueId());
+            }
+        }
+
+        // Process item tags if the message contains them, but skip when [inv] or [ec] are present
+        if (ItemTagProcessor.containsItemTags(processedMessage)
+                && !processedMessage.contains("[inv]")
+                && !processedMessage.contains("[ec]")) {
+            // Check if item tags are enabled and player has permission
+            boolean itemTagsEnabled = plugin.getMessagesConfig().getBoolean("chat.item-tags.enabled", true);
+            String itemTagsPermission = plugin.getMessagesConfig().getString("chat.item-tags.permission", "echocore.chat.itemtags");
+            
+            if (itemTagsEnabled && (itemTagsPermission.isEmpty() || sender.hasPermission(itemTagsPermission))) {
+                // Create a new message with item tags processed
+                BaseComponent[] itemComponents = ItemTagProcessor.processItemTags(processedMessage, sender, plugin.getMessagesConfig());
+                
+                // Build chat header with player name and item components
+                String headerPart = chatFormat.substring(0, chatFormat.indexOf("{message}"));
+                String playerPartColored = Utils.colorize(headerPart.replace("{player}", sender.getName()));
+                
+                ComponentBuilder finalBuilder = new ComponentBuilder();
+                finalBuilder.append(TextComponent.fromLegacyText(playerPartColored));
+                finalBuilder.append(itemComponents);
+                
+                BaseComponent[] finalComponents = finalBuilder.create();
+                for (Player recipient : recipients) {
+                    recipient.spigot().sendMessage(finalComponents);
+                }
+            } else {
+                // Send message without item processing
+                BaseComponent[] components = builder.create();
+                for (Player recipient : recipients) {
+                    recipient.spigot().sendMessage(components);
+                }
+            }
+        } else {
+            // Send message without item processing
+            BaseComponent[] components = builder.create();
+            for (Player recipient : recipients) {
+                recipient.spigot().sendMessage(components);
+            }
+        }
+    }
+
     private String processSpecialCommands(String message, Player player) {
         // Check if tags are enabled
         boolean tagsEnabled = plugin.getMessagesConfig().getBoolean("chat.tags.enabled", true);
@@ -152,40 +264,24 @@ public class ChatEvents implements Listener {
             return message;
         }
         
-        // Process [enderchest] command
-        if (message.contains("[enderchest]")) {
+        // Process [ec] command (grant consent, keep tag)
+        if (message.contains("[ec]")) {
             if (player.hasPermission("echocore.chat.enderchest")) {
-                // Open enderchest GUI instead of showing text
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    guiManager.openEnderchestGui(player, player);
-                });
+                ConsentManager.grantEnderchestConsent(player.getUniqueId());
             } else {
                 String noPermMessage = Utils.getMessageWithPrefix(plugin, "chat.gui.no-permission", "&cNo Permission");
                 player.sendMessage(Utils.colorize(noPermMessage));
             }
-            // Keep the [enderchest] in chat but make it colored with hover text
-            String enderchestHoverText = plugin.getMessagesConfig().getString("chat.enderchest.hover-text", "&bEnderchest of {player}");
-            enderchestHoverText = enderchestHoverText.replace("{player}", player.getName());
-            String enderchestTag = "&b[enderchest]&r";
-            message = message.replace("[enderchest]", enderchestTag);
         }
         
-        // Process [inventory] command
-        if (message.contains("[inventory]")) {
+        // Process [inv] command (grant consent, keep tag)
+        if (message.contains("[inv]")) {
             if (player.hasPermission("echocore.chat.inventory")) {
-                // Open inventory GUI instead of showing text
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    guiManager.openInventoryGui(player, player);
-                });
+                ConsentManager.grantInventoryConsent(player.getUniqueId());
             } else {
                 String noPermMessage = Utils.getMessageWithPrefix(plugin, "chat.gui.no-permission", "&cNo Permission");
                 player.sendMessage(Utils.colorize(noPermMessage));
             }
-            // Keep the [inventory] in chat but make it colored with hover text
-            String inventoryHoverText = plugin.getMessagesConfig().getString("chat.inventory.hover-text", "&bInventory of {player}");
-            inventoryHoverText = inventoryHoverText.replace("{player}", player.getName());
-            String inventoryTag = "&b[inventory]&r";
-            message = message.replace("[inventory]", inventoryTag);
         }
         
         // Process custom commands from config
@@ -282,8 +378,8 @@ public class ChatEvents implements Listener {
             return message;
         }
         
-        // Process [enderchest] command
-        if (message.contains("[enderchest]")) {
+        // Process [ec] command (grant consent, keep tag)
+        if (message.contains("[ec]")) {
             if (player.hasPermission("echocore.chat.enderchest")) {
                 // Open enderchest GUI instead of showing text
                 Bukkit.getScheduler().runTask(plugin, () -> {
@@ -293,13 +389,13 @@ public class ChatEvents implements Listener {
                 String noPermMessage = Utils.getMessageWithPrefix(plugin, "chat.gui.no-permission", "&cNo Permission");
                 player.sendMessage(Utils.colorize(noPermMessage));
             }
-            // Keep the [enderchest] in chat but make it colored
-            String enderchestTag = "&b[enderchest]&r";
-            message = message.replace("[enderchest]", enderchestTag);
+            // Keep the [ec] in chat but make it colored
+            String ecTag = "&b[ec]&r";
+            message = message.replace("[ec]", ecTag);
         }
         
-        // Process [inventory] command
-        if (message.contains("[inventory]")) {
+        // Process [inv] command (grant consent, keep tag)
+        if (message.contains("[inv]")) {
             if (player.hasPermission("echocore.chat.inventory")) {
                 // Open inventory GUI instead of showing text
                 Bukkit.getScheduler().runTask(plugin, () -> {
@@ -309,9 +405,9 @@ public class ChatEvents implements Listener {
                 String noPermMessage = Utils.getMessageWithPrefix(plugin, "chat.gui.no-permission", "&cNo Permission");
                 player.sendMessage(Utils.colorize(noPermMessage));
             }
-            // Keep the [inventory] in chat but make it colored
-            String inventoryTag = "&b[inventory]&r";
-            message = message.replace("[inventory]", inventoryTag);
+            // Keep the [inv] in chat but make it colored
+            String invTag = "&b[inv]&r";
+            message = message.replace("[inv]", invTag);
         }
         
         return message;
@@ -336,6 +432,9 @@ public class ChatEvents implements Listener {
             return;
         }
         
+        // Ensure we control the completions (clear defaults like plain player names)
+        event.getCompletions().clear();
+
         // Get online players
         List<String> onlinePlayers = Bukkit.getOnlinePlayers().stream()
                 .map(Player::getName)
@@ -360,11 +459,24 @@ public class ChatEvents implements Listener {
         // Special handling for empty tab completion (show special options)
         if (currentWord.isEmpty()) {
             List<String> specialOptions = new ArrayList<>();
-            specialOptions.add("[enderchest]");
-            specialOptions.add("[inventory]");
+            specialOptions.add("[ec]");
+            specialOptions.add("[inv]");
             
-            // Add online players
-            specialOptions.addAll(onlinePlayers);
+            // Add common item tags if player has permission
+            boolean itemTagsEnabled = plugin.getMessagesConfig().getBoolean("chat.item-tags.enabled", true);
+            String itemTagsPermission = plugin.getMessagesConfig().getString("chat.item-tags.permission", "echocore.chat.itemtags");
+            
+            if (itemTagsEnabled && (itemTagsPermission.isEmpty() || player.hasPermission(itemTagsPermission))) {
+                specialOptions.add("[item]");
+                specialOptions.add("[sword]");
+                specialOptions.add("[armor]");
+                specialOptions.add("[helmet]");
+            }
+            
+            // Add online players with @ prefix for easy tagging
+            for (String playerName : onlinePlayers) {
+                specialOptions.add("@" + playerName);
+            }
             
             event.getCompletions().addAll(specialOptions);
             plugin.getLogger().info("Added " + specialOptions.size() + " special options for " + player.getName());
@@ -374,8 +486,16 @@ public class ChatEvents implements Listener {
         // Special handling for [ commands
         if (currentWord.startsWith("[")) {
             List<String> bracketCompletions = new ArrayList<>();
-            bracketCompletions.add("[enderchest]");
-            bracketCompletions.add("[inventory]");
+            bracketCompletions.add("[ec]");
+            bracketCompletions.add("[inv]");
+            
+            // Add item tags if player has permission
+            boolean itemTagsEnabled = plugin.getMessagesConfig().getBoolean("chat.item-tags.enabled", true);
+            String itemTagsPermission = plugin.getMessagesConfig().getString("chat.item-tags.permission", "echocore.chat.itemtags");
+            
+            if (itemTagsEnabled && (itemTagsPermission.isEmpty() || player.hasPermission(itemTagsPermission))) {
+                bracketCompletions.addAll(ItemTagProcessor.getAvailableTags(player));
+            }
             
             // Add custom commands from config
             if (plugin.getMessagesConfig().isConfigurationSection("custom-commands")) {
@@ -395,7 +515,10 @@ public class ChatEvents implements Listener {
         
         // Regular completions
         List<String> completions = new ArrayList<>();
-        completions.addAll(onlinePlayers);
+        // Add online players with @ prefix for easy tagging
+        for (String playerName : onlinePlayers) {
+            completions.add("@" + playerName);
+        }
         
         // Add inventory items (if player has permission)
         if (player.hasPermission("echocore.chat.inventory")) {
@@ -427,6 +550,9 @@ public class ChatEvents implements Listener {
         
         // Debug: Log chat tab completion
         plugin.getLogger().info("Chat tab completion for " + player.getName() + ": '" + lastToken + "'");
+
+        // Ensure we control the chat completions (clear defaults like plain player names)
+        event.getTabCompletions().clear();
         
         // Special handling for @player tags
         if (lastToken.startsWith("@")) {
@@ -448,14 +574,28 @@ public class ChatEvents implements Listener {
         // Special handling for empty tab completion (show special options)
         if (lastToken.isEmpty()) {
             List<String> specialOptions = new ArrayList<>();
-            specialOptions.add("[enderchest]");
-            specialOptions.add("[inventory]");
+            specialOptions.add("[ec]");
+            specialOptions.add("[inv]");
             
-            // Add online players
+            // Add common item tags if player has permission
+            boolean itemTagsEnabled = plugin.getMessagesConfig().getBoolean("chat.item-tags.enabled", true);
+            String itemTagsPermission = plugin.getMessagesConfig().getString("chat.item-tags.permission", "echocore.chat.itemtags");
+            
+            if (itemTagsEnabled && (itemTagsPermission.isEmpty() || player.hasPermission(itemTagsPermission))) {
+                specialOptions.add("[item]");
+                specialOptions.add("[sword]");
+                specialOptions.add("[item]");
+                specialOptions.add("[armor]");
+                specialOptions.add("[helmet]");
+            }
+            
+            // Add online players with @ prefix for easy tagging
             List<String> onlinePlayers = Bukkit.getOnlinePlayers().stream()
                     .map(Player::getName)
                     .collect(Collectors.toList());
-            specialOptions.addAll(onlinePlayers);
+            for (String playerName : onlinePlayers) {
+                specialOptions.add("@" + playerName);
+            }
             
             event.getTabCompletions().addAll(specialOptions);
             plugin.getLogger().info("Added " + specialOptions.size() + " special options for " + player.getName());
@@ -465,8 +605,16 @@ public class ChatEvents implements Listener {
         // Special handling for [ commands
         if (lastToken.startsWith("[")) {
             List<String> bracketCompletions = new ArrayList<>();
-            bracketCompletions.add("[enderchest]");
-            bracketCompletions.add("[inventory]");
+            bracketCompletions.add("[ec]");
+            bracketCompletions.add("[inv]");
+            
+            // Add item tags if player has permission
+            boolean itemTagsEnabled = plugin.getMessagesConfig().getBoolean("chat.item-tags.enabled", true);
+            String itemTagsPermission = plugin.getMessagesConfig().getString("chat.item-tags.permission", "echocore.chat.itemtags");
+            
+            if (itemTagsEnabled && (itemTagsPermission.isEmpty() || player.hasPermission(itemTagsPermission))) {
+                bracketCompletions.addAll(ItemTagProcessor.getAvailableTags(player));
+            }
             
             // Add custom commands from config
             if (plugin.getMessagesConfig().isConfigurationSection("custom-commands")) {
@@ -487,11 +635,13 @@ public class ChatEvents implements Listener {
         // Regular completions for chat
         List<String> completions = new ArrayList<>();
         
-        // Add online players
+        // Add online players with @ prefix for easy tagging
         List<String> onlinePlayers = Bukkit.getOnlinePlayers().stream()
                 .map(Player::getName)
                 .collect(Collectors.toList());
-        completions.addAll(onlinePlayers);
+        for (String playerName : onlinePlayers) {
+            completions.add("@" + playerName);
+        }
         
         // Add inventory items (if player has permission)
         if (player.hasPermission("echocore.chat.inventory")) {
@@ -557,8 +707,16 @@ public class ChatEvents implements Listener {
     
     private List<String> getChatCommands() {
         List<String> commands = new ArrayList<>();
-        commands.add("inventory");
-        commands.add("enderchest");
+        commands.add("[inv]");
+        commands.add("[ec]");
+        
+        // Add item tags if player has permission (this method is called from tab completion)
+        // The permission check is done in the calling methods
+        commands.add("[item]");
+        commands.add("[sword]");
+        commands.add("[armor]");
+        commands.add("[helmet]");
+        
         commands.add("stats");
         commands.add("help");
         commands.add("test");

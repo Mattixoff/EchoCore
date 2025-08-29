@@ -29,7 +29,7 @@ public class StaffInventoryCommand implements CommandExecutor {
         
         Player player = (Player) sender;
         
-        if (!player.hasPermission("echocore.staff.inventory")) {
+        if (!plugin.getPermissionChecker().has(player, "echocore.staff.inventory")) {
             String noPermMessage = Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!");
             player.sendMessage(Utils.colorize(noPermMessage));
             return true;

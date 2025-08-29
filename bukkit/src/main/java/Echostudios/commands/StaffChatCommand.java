@@ -18,7 +18,7 @@ public class StaffChatCommand implements CommandExecutor {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("echocore.staffchat")) {
+        if (!plugin.getPermissionChecker().has(sender, "echocore.staffchat")) {
             sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }
@@ -36,7 +36,7 @@ public class StaffChatCommand implements CommandExecutor {
         
         // Send to all online staff members
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.hasPermission("echocore.staffchat")) {
+            if (plugin.getPermissionChecker().has(player, "echocore.staffchat")) {
                 player.sendMessage(Utils.colorize(staffMessage));
             }
         }

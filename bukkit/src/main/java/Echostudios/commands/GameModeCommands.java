@@ -7,9 +7,14 @@ import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-public class GameModeCommands implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class GameModeCommands implements CommandExecutor, TabCompleter {
     
     private final EchoCore plugin;
     
@@ -46,7 +51,7 @@ public class GameModeCommands implements CommandExecutor {
             }
             
             Player player = (Player) sender;
-            if (!player.hasPermission("echocore.gamemode." + targetMode.name().toLowerCase())) {
+            if (!plugin.getPermissionChecker().has(player, "echocore.gamemode." + targetMode.name().toLowerCase())) {
                 player.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
                 return true;
             }
@@ -57,7 +62,7 @@ public class GameModeCommands implements CommandExecutor {
             player.sendMessage(Utils.colorize(message));
             
         } else if (args.length == 1) {
-            if (!sender.hasPermission("echocore.gamemode.others")) {
+            if (!plugin.getPermissionChecker().has(sender, "echocore.gamemode.others")) {
                 sender.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
                 return true;
             }
@@ -82,5 +87,24 @@ public class GameModeCommands implements CommandExecutor {
         }
         
         return true;
+    }
+    
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+        
+        if (args.length == 1) {
+            // Complete player names for the second argument
+            if (plugin.getPermissionChecker().has(sender, "echocore.gamemode.others")) {
+                String input = args[0].toLowerCase();
+                List<String> playerNames = Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(name -> name.toLowerCase().startsWith(input))
+                        .collect(Collectors.toList());
+                completions.addAll(playerNames);
+            }
+        }
+        
+        return completions;
     }
 }

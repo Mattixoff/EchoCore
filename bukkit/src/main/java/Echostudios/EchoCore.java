@@ -33,13 +33,20 @@ public class EchoCore extends JavaPlugin {
     private InventoryCommand inventoryCommand;
     private StaffInventoryCommand staffInventoryCommand;
     private GuiCommand guiCommand;
+    private PermCommand permCommand;
+    private EcCommand ecCommand;
     
     // Event instances
     private ChatEvents chatEvents;
+    private Echostudios.listeners.PlayerListener playerListener;
     
     // Utility instances
     private WebhookManager webhookManager;
     private DatabaseManager databaseManager;
+    private Echostudios.utils.PermissionsManager permissionsManager;
+    private Echostudios.utils.Placeholders placeholders;
+    private Echostudios.utils.PermissionChecker permissionChecker;
+    private Echostudios.utils.PermissionSyncManager permissionSyncManager;
     
     // Configuration files
     private FileConfiguration messagesConfig;
@@ -114,6 +121,15 @@ public class EchoCore extends JavaPlugin {
 
         // Initialize events
         initializeEvents();
+
+        // Register PlaceholderAPI expansion if present
+        try {
+            if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                placeholders = new Echostudios.utils.Placeholders(this, permissionsManager);
+                placeholders.register();
+                getLogger().info("Registered EchoCore PlaceholderAPI expansion");
+            }
+        } catch (Throwable ignored) {}
 
         logColored(ANSI_CYAN + "----------------------------------------------");
         logColored(ANSI_CYAN + "               ECHOCORE | STARTED UP          ");
@@ -560,6 +576,11 @@ public class EchoCore extends JavaPlugin {
         inventoryCommand = new InventoryCommand(this);
         staffInventoryCommand = new StaffInventoryCommand(this);
         guiCommand = new GuiCommand(this);
+        permissionsManager = new Echostudios.utils.PermissionsManager(this);
+        permissionChecker = new Echostudios.utils.PermissionChecker(this, permissionsManager);
+        permissionSyncManager = new Echostudios.utils.PermissionSyncManager(this, permissionsManager);
+        permCommand = new PermCommand(this, permissionsManager);
+        ecCommand = new EcCommand(this, permissionsManager);
 
         // Register commands
         getCommand("gmc").setExecutor(gameModeCommands);
@@ -584,6 +605,13 @@ public class EchoCore extends JavaPlugin {
         getCommand("inv").setExecutor(staffInventoryCommand);
         getCommand("gui").setExecutor(guiCommand);
         getCommand("gui").setTabCompleter(guiCommand);
+        if (getCommand("perm") != null) {
+            getCommand("perm").setExecutor(permCommand);
+        }
+        if (getCommand("ec") != null) {
+            getCommand("ec").setExecutor(ecCommand);
+            getCommand("ec").setTabCompleter(ecCommand);
+        }
         
         // Register tab completers (only for commands that implement TabCompleter)
         getCommand("reload").setTabCompleter(reloadCommand);
@@ -596,9 +624,15 @@ public class EchoCore extends JavaPlugin {
     private void initializeEvents() {
         // Initialize event instances
         chatEvents = new ChatEvents(this);
+        playerListener = new Echostudios.listeners.PlayerListener(this);
 
         // Register events
         getServer().getPluginManager().registerEvents(chatEvents, this);
+        getServer().getPluginManager().registerEvents(playerListener, this);
+        // Sync existing players into Bukkit layer so other plugins see EchoPerms (hybrid/echoperms modes)
+        try {
+            permissionSyncManager.syncAllOnline();
+        } catch (Throwable ignored) {}
     }
 
     public void logColored(String msg) {
@@ -698,6 +732,18 @@ public class EchoCore extends JavaPlugin {
     
     public WebhookManager getWebhookManager() {
         return webhookManager;
+    }
+
+    public Echostudios.utils.PermissionsManager getPermissionsManager() {
+        return permissionsManager;
+    }
+
+    public Echostudios.utils.PermissionChecker getPermissionChecker() {
+        return permissionChecker;
+    }
+
+    public Echostudios.utils.PermissionSyncManager getPermissionSyncManager() {
+        return permissionSyncManager;
     }
     
     public GameModeCommands getGameModeCommands() {

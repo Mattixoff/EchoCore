@@ -46,6 +46,19 @@ public class Utils {
         
         return colorize(prefix + msg);
     }
+
+    /**
+     * Apply PlaceholderAPI placeholders if available
+     */
+    public static String applyPlaceholders(org.bukkit.entity.Player player, String text) {
+        if (text == null) return "";
+        try {
+            if (org.bukkit.Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, text);
+            }
+        } catch (Throwable ignored) {}
+        return text;
+    }
     
     /**
      * Format a message with prefix, placeholders, and color codes

@@ -4,6 +4,13 @@
 # Use \\n for line breaks
 # Use {prefix} to include the global prefix, remove it if you don't want the prefix for that message
 
+#███████╗ ██████╗██╗  ██╗ ██████╗  ██████╗ ██████╗ ██████╗ ███████╗     ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
+#██╔════╝██╔════╝██║  ██║██╔═══██╗██╔════╝██╔═══██╗██╔══██╗██╔════╝    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
+#█████╗  ██║     ███████║██║   ██║██║     ██║   ██║██████╔╝█████╗      ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+#██╔══╝  ██║     ██╔══██║██║   ██║██║     ██║   ██║██╔══██╗██╔══╝      ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+#███████╗╚██████╗██║  ██║╚██████╔╝╚██████╗╚██████╔╝██║  ██║███████╗    ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+#╚══════╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝ 
+
 # Global Prefix Configuration
 prefix: "&8[&bEchoCore&8] &r"
 
@@ -148,6 +155,9 @@ help:
       - "&7- &bTab Completion &7- Press TAB to see inventory/enderchest items"
       - "&7- &b[enderchest] &7- Open enderchest GUI in chat"
       - "&7- &b[inventory] &7- Open inventory GUI in chat"
+      - "&7- &b[item] &7- Show item in main hand with hover details"
+      - "&7- &b[sword], [armor], [helmet] &7- Show specific equipment"
+      - "&7- &b[nomeoggetto] &7- Show specific item from inventory"
     
     inventory:
       - "&b&lInventory Management:"
@@ -171,7 +181,12 @@ stats:
 
 # Chat System Configuration
 chat:
-  # Chat Format
+  # Chat Format - Use {player} for player name and {message} for message content
+  # Examples:
+  # format: "&7<&e{player}&7> &f{message}" - Default format
+  # format: "&8[&b{player}&8] &7» &f{message}" - Custom format with brackets
+  # format: "&a{player} &7» &e{message}" - Green player name with arrow
+  # format: "&6{player} &8&l» &f{message}" - Gold player name with bold arrow
   format: "&7<&e{player}&7> &f{message}"
   
   # Tag System
@@ -180,6 +195,28 @@ chat:
     format: "&b@{player}&r"
     auto-tag-enabled: true
     auto-tag-format: "&b@{player}&r"
+  
+  # Item Tags System
+  item-tags:
+    enabled: true
+    permission: "echocore.chat.itemtags"
+    empty-slot-text: "&7(vuoto)"
+    empty-slot-hover: "&7Slot vuoto"
+    
+    # Available item tags
+    available-tags:
+      - "[item] - Oggetto in mano principale"
+      - "[mainhand] - Oggetto in mano principale"
+      - "[offhand] - Oggetto in mano secondaria"
+      - "[helmet] - Elmo equipaggiato"
+      - "[chestplate] - Corazza equipaggiata"
+      - "[leggings] - Gambali equipaggiati"
+      - "[boots] - Stivali equipaggiati"
+      - "[sword] - Arma in mano (se presente)"
+      - "[weapon] - Arma in mano (se presente)"
+      - "[armor] - Elmo equipaggiato (se presente)"
+      - "[shield] - Scudo in mano secondaria (se presente)"
+      - "[nomeoggetto] - Oggetto specifico nell'inventario"
   
   # Special Commands Hover Text
   enderchest:
@@ -195,6 +232,16 @@ chat:
     staff-inventory-title: "&c&lStaff View: &8Inventory of &e{player}"
     no-permission: "&cNo Permission"
     empty: "&7Empty"
+    # Placeholders shown when GUIs are empty
+    placeholders:
+      inventory:
+        material: "GRAY_STAINED_GLASS_PANE"   # Any valid Bukkit Material
+        name: "&8Inventory"                    # Display name for placeholder item
+        pattern: "fill"                        # fill | border | checker
+      enderchest:
+        material: "GRAY_STAINED_GLASS_PANE"
+        name: "&8Enderchest"
+        pattern: "fill"
   
   # Tab Completion Messages
   tab-completion:

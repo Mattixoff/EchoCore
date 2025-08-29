@@ -4,6 +4,7 @@ main: Echostudios.EchoCore
 api-version: 1.21
 authors: [Echostudios]
 description: A powerful core plugin for Minecraft servers with advanced moderation, utility commands, and Discord integration.
+softdepend: [PlaceholderAPI, LuckPerms]
 
 commands:
   gmc:
@@ -91,6 +92,16 @@ commands:
     usage: /gui <gui_name> [player]
     permission: echocore.gui
 
+  perm:
+    description: Manage users/groups permissions (EchoCore light perms)
+    usage: "/perm user <name> set <permission> <true|false> | group <group> set <permission> <true|false> | user <name> group add <group> | check <name> <permission>"
+    permission: echocore.perm
+
+  ec:
+    description: EchoCore permission manager (EchoPerms)
+    usage: "/ec help"
+    permission: echocore.perm
+
 permissions:
   echocore.*:
     description: Access to all EchoCore commands
@@ -126,6 +137,7 @@ permissions:
       echocore.chat.colors: true
       echocore.staff.inventory: true
       echocore.gui: true
+      echocore.perm: true
   
   echocore.gamemode.*:
     description: Access to all gamemode commands
@@ -250,4 +262,8 @@ permissions:
   
   echocore.gui:
     description: Use /gui command
+    default: op
+
+  echocore.perm:
+    description: Use /perm command
     default: op

@@ -6,13 +6,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class VanishCommand implements CommandExecutor {
+public class VanishCommand implements CommandExecutor, TabCompleter {
     
     private final EchoCore plugin;
     private final Set<UUID> vanishedPlayers = new HashSet<>();
@@ -30,7 +34,7 @@ public class VanishCommand implements CommandExecutor {
         
         Player player = (Player) sender;
         
-        if (!player.hasPermission("echocore.vanish")) {
+        if (!plugin.getPermissionChecker().has(player, "echocore.vanish")) {
             player.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
             return true;
         }
@@ -41,7 +45,7 @@ public class VanishCommand implements CommandExecutor {
             
         } else if (args.length == 1) {
             // Toggle vanish for another player
-            if (!player.hasPermission("echocore.vanish.others")) {
+            if (!plugin.getPermissionChecker().has(player, "echocore.vanish.others")) {
                 player.sendMessage(Utils.getMessageWithPrefix(plugin, "general.no-permission", "&cYou don't have permission to use this command!"));
                 return true;
             }
@@ -115,7 +119,7 @@ public class VanishCommand implements CommandExecutor {
     
     private void hidePlayer(Player player) {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            if (!onlinePlayer.hasPermission("echocore.vanish.see") && !onlinePlayer.equals(player)) {
+            if (!plugin.getPermissionChecker().has(onlinePlayer, "echocore.vanish.see") && !onlinePlayer.equals(player)) {
                 onlinePlayer.hidePlayer(plugin, player);
             }
         }
@@ -135,9 +139,28 @@ public class VanishCommand implements CommandExecutor {
         // Hide vanished players from the new player
         for (UUID vanishedUUID : vanishedPlayers) {
             Player vanishedPlayer = Bukkit.getPlayer(vanishedUUID);
-            if (vanishedPlayer != null && !player.hasPermission("echocore.vanish.see")) {
+            if (vanishedPlayer != null && !plugin.getPermissionChecker().has(player, "echocore.vanish.see")) {
                 player.hidePlayer(plugin, vanishedPlayer);
             }
         }
+    }
+    
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+        
+        if (args.length == 1) {
+            // Complete player names for the second argument
+            if (plugin.getPermissionChecker().has(sender, "echocore.vanish.others")) {
+                String input = args[0].toLowerCase();
+                List<String> playerNames = Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(name -> name.toLowerCase().startsWith(input))
+                        .collect(Collectors.toList());
+                completions.addAll(playerNames);
+            }
+        }
+        
+        return completions;
     }
 }
